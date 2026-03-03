@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование заявки №{{ req.request_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Редактирование заявки №{{ req.request_id }}</h1>
+    <a href="{{ url_for('request_detail', request_id=req.request_id) }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label for="request_status">Статус заявки</label>
+            <select id="request_status" name="request_status" required>
+                {% for s in statuses %}
+                <option value="{{ s }}" {% if s == req.request_status %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="master_id">Ответственный специалист</label>
+            <select id="master_id" name="master_id">
+                <option value="">— Не назначен —</option>
+                {% for s in specialists %}
+                <option value="{{ s.user_id }}" {% if req.master_id == s.user_id %}selected{% endif %}>
+                    {{ s.fio }} ({{ s.role }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="problem_description">Описание проблемы</label>
+            <textarea id="problem_description" name="problem_description" required>{{ req.problem_description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="repair_parts">Комплектующие</label>
+            <textarea id="repair_parts" name="repair_parts"
+                      placeholder="Укажите использованные комплектующие...">{{ req.repair_parts or '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <a href="{{ url_for('request_detail', request_id=req.request_id) }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Заявка №{{ req.request_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Заявка №{{ req.request_id }}</h1>
+    <div style="display:flex; gap:10px;">
+        {% if session.role in ('Оператор', 'Администратор', 'Менеджер') %}
+        <a href="{{ url_for('request_edit', request_id=req.request_id) }}" class="btn btn-primary">Редактировать</a>
+        {% endif %}
+        {% if session.role == 'Администратор' %}
+        <form method="POST" action="{{ url_for('request_delete', request_id=req.request_id) }}"
+              class="confirm-delete" data-confirm="Удалить заявку №{{ req.request_id }}? Это действие необратимо.">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Информация о заявке</div>
+    <div class="detail-grid">
+        <div class="detail-row">
+            <span class="detail-label">Статус</span>
+            <span class="detail-value">
+                {% if req.request_status == 'Новая заявка' %}
+                    <span class="badge badge-new">{{ req.request_status }}</span>
+                {% elif req.request_status == 'В процессе ремонта' %}
+                    <span class="badge badge-process">{{ req.request_status }}</span>
+                {% elif req.request_status == 'Ожидание комплектующих' %}
+                    <span class="badge badge-waiting">{{ req.request_status }}</span>
+                {% elif req.request_status == 'Готова к выдаче' %}
+                    <span class="badge badge-ready">{{ req.request_status }}</span>
+                {% else %}
+                    <span class="badge badge-done">{{ req.request_status }}</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Дата создания</span>
+            <span class="detail-value">{{ req.start_date }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Тип оборудования</span>
+            <span class="detail-value">{{ req.climate_tech_type }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Модель</span>
+            <span class="detail-value">{{ req.climate_tech_model }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Заказчик</span>
+            <span class="detail-value">{{ req.client_fio }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Телефон заказчика</span>
+            <span class="detail-value">{{ req.client_phone }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Ответственный специалист</span>
+            <span class="detail-value">{{ req.master_fio or '—' }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Дата завершения</span>
+            <span class="detail-value">{{ req.completion_date or '—' }}</span>
+        </div>
+        <div class="detail-row" style="grid-column: 1 / -1;">
+            <span class="detail-label">Описание проблемы</span>
+            <span class="detail-value">{{ req.problem_description }}</span>
+        </div>
+        {% if req.repair_parts %}
+        <div class="detail-row" style="grid-column: 1 / -1;">
+            <span class="detail-label">Комплектующие</span>
+            <span class="detail-value">{{ req.repair_parts }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Комментарии</div>
+
+    {% if comments %}
+        {% for c in comments %}
+        <div class="comment">
+            <div class="comment-meta">{{ c.author_fio }} — {{ c.created_at }}</div>
+            <div class="comment-text">{{ c.message }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#94a3b8; font-size:14px;">Комментариев пока нет.</p>
+    {% endif %}
+
+    {% if session.role in ('Специалист', 'Менеджер', 'Администратор', 'Оператор') %}
+    <form method="POST" action="{{ url_for('add_comment', request_id=req.request_id) }}" style="margin-top:16px;">
+        <div class="form-group">
+            <label for="message">Добавить комментарий</label>
+            <textarea id="message" name="message" placeholder="Введите комментарий..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

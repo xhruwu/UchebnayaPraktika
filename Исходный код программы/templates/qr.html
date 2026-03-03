@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}QR-оценка{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">QR-код для оценки работы</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="card" style="max-width:480px;">
+    <div class="card-title">Оценка качества обслуживания</div>
+    <p style="font-size:14px; color:#374151; margin-bottom:20px;">
+        Отсканируйте QR-код для перехода к форме оценки работы сервисной службы ООО «Конди».
+    </p>
+
+    <div class="qr-wrap">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ request.host_url }}feedback"
+             alt="QR-код для оценки" width="200" height="200">
+        <p style="font-size:13px; color:#64748b; margin-top:12px;">
+            Ссылка: <a href="{{ request.host_url }}feedback" target="_blank">{{ request.host_url }}feedback</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

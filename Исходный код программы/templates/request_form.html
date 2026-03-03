@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Новая заявка{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Новая заявка</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        {% if session.role != 'Заказчик' %}
+        <div class="form-group">
+            <label for="client_id">Заказчик</label>
+            <select id="client_id" name="client_id" required>
+                <option value="">— Выберите заказчика —</option>
+                {% for c in clients %}
+                {% set selected_client = form.get('client_id', '') %}
+                <option value="{{ c.user_id }}" {% if selected_client == c.user_id|string %}selected{% endif %}>
+                    {{ c.fio }} ({{ c.phone }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="climate_tech_type">Тип оборудования</label>
+            <select id="climate_tech_type" name="climate_tech_type" required>
+                <option value="">— Выберите тип —</option>
+                {% set types = ['Кондиционер', 'Увлажнитель воздуха', 'Сушилка для рук', 'Вентиляция', 'Отопление', 'Прочее'] %}
+                {% set selected_type = form.get('climate_tech_type', '') %}
+                {% for t in types %}
+                <option value="{{ t }}" {% if selected_type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="climate_tech_model">Модель устройства</label>
+            <input type="text" id="climate_tech_model" name="climate_tech_model"
+                   value="{{ form.get('climate_tech_model', '') }}"
+                   placeholder="Например: Samsung AR09TXHQASINUA" required>
+        </div>
+
+        <div class="form-group">
+            <label for="problem_description">Описание проблемы</label>
+            <textarea id="problem_description" name="problem_description"
+                      placeholder="Опишите неисправность подробно..." required>{{ form.get('problem_description', '') }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Создать заявку</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

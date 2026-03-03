@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Конди{% endblock %} — Учёт заявок</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if session.user_id %}
+<header class="header">
+    <div class="header-inner">
+        <a href="{{ url_for('dashboard') }}" class="logo">ООО «Конди»</a>
+        <nav class="nav">
+            <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Заявки</a>
+
+            {% if session.role in ('Администратор', 'Менеджер', 'Оператор') %}
+            <a href="{{ url_for('statistics') }}" class="nav-link {% if request.endpoint == 'statistics' %}active{% endif %}">Статистика</a>
+            {% endif %}
+
+            {% if session.role == 'Администратор' %}
+            <a href="{{ url_for('users_list') }}" class="nav-link {% if request.endpoint in ('users_list','user_new') %}active{% endif %}">Пользователи</a>
+            {% endif %}
+
+            <a href="{{ url_for('qr_page') }}" class="nav-link {% if request.endpoint == 'qr_page' %}active{% endif %}">QR-оценка</a>
+        </nav>
+        <div class="header-user">
+            <span class="user-info">{{ session.fio }} <em>({{ session.role }})</em></span>
+            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline">Выйти</a>
+        </div>
+    </div>
+</header>
+{% endif %}
+
+<main class="main">
+    <div class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alerts">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

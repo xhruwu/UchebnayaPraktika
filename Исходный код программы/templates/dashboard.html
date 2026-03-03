@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Заявки{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Заявки на ремонт</h1>
+    {% if session.role in ('Оператор', 'Администратор', 'Заказчик') %}
+    <a href="{{ url_for('request_new') }}" class="btn btn-primary">+ Новая заявка</a>
+    {% endif %}
+</div>
+
+<form class="filters" method="GET">
+    <input type="text" name="search" value="{{ search }}" placeholder="Поиск по номеру, модели, клиенту...">
+    <select name="status">
+        <option value="">Все статусы</option>
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if s == selected_status %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Найти</button>
+    {% if search or selected_status %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Сбросить</a>
+    {% endif %}
+</form>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Дата</th>
+                <th>Тип оборудования</th>
+                <th>Модель</th>
+                <th>Заказчик</th>
+                <th>Специалист</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if requests %}
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.request_id }}</td>
+                <td>{{ r.start_date }}</td>
+                <td>{{ r.climate_tech_type }}</td>
+                <td>{{ r.climate_tech_model }}</td>
+                <td>{{ r.client_fio }}</td>
+                <td>{{ r.master_fio or '—' }}</td>
+                <td>
+                    {% if r.request_status == 'Новая заявка' %}
+                        <span class="badge badge-new">{{ r.request_status }}</span>
+                    {% elif r.request_status == 'В процессе ремонта' %}
+                        <span class="badge badge-process">{{ r.request_status }}</span>
+                    {% elif r.request_status == 'Ожидание комплектующих' %}
+                        <span class="badge badge-waiting">{{ r.request_status }}</span>
+                    {% elif r.request_status == 'Готова к выдаче' %}
+                        <span class="badge badge-ready">{{ r.request_status }}</span>
+                    {% else %}
+                        <span class="badge badge-done">{{ r.request_status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('request_detail', request_id=r.request_id) }}" class="btn btn-secondary btn-sm">Открыть</a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="8" class="no-data">Заявки не найдены</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

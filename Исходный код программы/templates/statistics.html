@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Статистика работы отдела</h1>
+</div>
+
+<form class="filters" method="GET" style="margin-bottom:24px;">
+    <div>
+        <label style="font-size:13px; color:#374151; display:block; margin-bottom:4px;">Дата с</label>
+        <input type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+        <label style="font-size:13px; color:#374151; display:block; margin-bottom:4px;">Дата по</label>
+        <input type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <div style="align-self:flex-end;">
+        <button type="submit" class="btn btn-secondary">Применить</button>
+    </div>
+    {% if date_from or date_to %}
+    <div style="align-self:flex-end;">
+        <a href="{{ url_for('statistics') }}" class="btn btn-secondary">Сбросить</a>
+    </div>
+    {% endif %}
+</form>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Всего заявок</div>
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-unit">за выбранный период</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Завершено</div>
+        <div class="stat-value">{{ completed }}</div>
+        <div class="stat-unit">заявок выполнено</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Среднее время</div>
+        <div class="stat-value">{{ avg_time if avg_time else '—' }}</div>
+        <div class="stat-unit">дней на выполнение</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+    <div class="card">
+        <div class="card-title">По статусам</div>
+        {% if status_stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Статус</th>
+                    <th>Количество</th>
+                    <th>Доля</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in status_stats %}
+                <tr>
+                    <td>
+                        {% if row.request_status == 'Новая заявка' %}
+                            <span class="badge badge-new">{{ row.request_status }}</span>
+                        {% elif row.request_status == 'В процессе ремонта' %}
+                            <span class="badge badge-process">{{ row.request_status }}</span>
+                        {% elif row.request_status == 'Ожидание комплектующих' %}
+                            <span class="badge badge-waiting">{{ row.request_status }}</span>
+                        {% elif row.request_status == 'Готова к выдаче' %}
+                            <span class="badge badge-ready">{{ row.request_status }}</span>
+                        {% else %}
+                            <span class="badge badge-done">{{ row.request_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ row.cnt }}</td>
+                    <td>{{ ((row.cnt / total) * 100) | round(1) if total > 0 else 0 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">Нет данных за выбранный период.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-title">По типам оборудования</div>
+        {% if type_stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Тип оборудования</th>
+                    <th>Количество</th>
+                    <th>Доля</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in type_stats %}
+                <tr>
+                    <td>{{ row.climate_tech_type }}</td>
+                    <td>{{ row.cnt }}</td>
+                    <td>{{ ((row.cnt / total) * 100) | round(1) if total > 0 else 0 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">Нет данных за выбранный период.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

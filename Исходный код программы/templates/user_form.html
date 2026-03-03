@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Новый пользователь{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Новый пользователь</h1>
+    <a href="{{ url_for('users_list') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label for="fio">ФИО</label>
+            <input type="text" id="fio" name="fio"
+                   value="{{ form.get('fio', '') }}"
+                   placeholder="Иванов Иван Иванович" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Номер телефона</label>
+            <input type="text" id="phone" name="phone"
+                   value="{{ form.get('phone', '') }}"
+                   placeholder="89001234567" required>
+        </div>
+
+        <div class="form-group">
+            <label for="login">Логин</label>
+            <input type="text" id="login" name="login"
+                   value="{{ form.get('login', '') }}"
+                   placeholder="Уникальный логин" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password"
+                   placeholder="Введите пароль" required>
+        </div>
+
+        <div class="form-group">
+            <label for="role">Роль</label>
+            <select id="role" name="role" required>
+                <option value="">— Выберите роль —</option>
+                {% set roles = ['Администратор', 'Менеджер', 'Оператор', 'Специалист', 'Заказчик'] %}
+                {% set selected_role = form.get('role', '') %}
+                {% for r in roles %}
+                <option value="{{ r }}" {% if selected_role == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Создать пользователя</button>
+            <a href="{{ url_for('users_list') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
